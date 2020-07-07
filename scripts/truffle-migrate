@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# For devs. Quickly migrate all contracts.
+docker-compose run --rm truffle migrate --reset --network=default

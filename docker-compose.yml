@@ -1,0 +1,109 @@
+version: '3.5'
+
+services:
+  my-dapp:
+    build:
+      context: ./my-dapp
+      dockerfile: Dockerfile
+    restart: on-failure
+    depends_on:
+      - ganache
+      - merkle-tree
+    volumes:
+      - ./my-dapp/demo:/app/demo # for demo dApp
+      - db:/app/db # for demo dApp
+      - ./build:/app/build
+      - ./proving-files:/app/proving-files
+      - ./my-dapp/src:/app/src
+      - ./my-dapp/src/privacy/config:/app/config
+      - ./my-dapp/__tests__:/app/__tests__
+      - ./my-dapp/.babelrc:/app/.babelrc
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - '8002:80'
+    environment:
+      HASH_TYPE: 'sha' # override this with docker-compose.override.mimc
+      BLOCKCHAIN_HOST: ws://ganache
+      BLOCKCHAIN_PORT: 8545
+      MERKLE_TREE_HOST: http://merkle-tree
+      MERKLE_TREE_PORT: 80
+      NIGHTLITE_LOG_LEVEL: debug
+    networks:
+      - my_network
+
+  ganache:
+    image: trufflesuite/ganache-cli:latest
+    command: ganache-cli --accounts=10 --defaultBalanceEther=1000 --deterministic
+    ports:
+      - '8545:8545'
+    networks:
+      - my_network
+
+  truffle:
+    image: ajmay/truffle:5.0.9
+    environment:
+      SOLC_VERSION: 0.5.8
+      ETH_HOST: ganache
+      ETH_GAS: 6000000
+      ETH_GAS_PRICE: 20000000000
+    volumes:
+      - ./contracts/:/truffle/contracts:delegated
+      - /truffle/contracts/privacy/mimc
+      - /truffle/contracts/privacy/sha
+      - ./contracts/privacy/sha/MerkleTree.sol:/truffle/contracts/privacy/MerkleTree.sol:delegated
+      - ./build/contracts/:/truffle/build/contracts:cached
+      - ./my-dapp/src/:/truffle/src:delegated
+      - ./my-dapp/migrations/:/truffle/migrations:delegated
+    depends_on:
+      - ganache
+    logging:
+      options:
+        max-size: 10m
+    networks:
+      - my_network
+
+  merkle-tree:
+    image: eyblockchain/timber:v2.1.0
+    restart: on-failure
+    depends_on:
+      - mongo-merkle-tree
+      - ganache
+    volumes:
+      - ./config/merkle-tree:/app/config
+      - ./contracts/:/app/contracts:consistent
+      - ./build/:/app/build:consistent
+      - app/node_modules
+    ports:
+      - '9000:80'
+    environment:
+      BLOCKCHAIN_HOST: ws://ganache
+      BLOCKCHAIN_PORT: 8545
+      CONTRACT_LOCATION: 'default'
+      MONGO_HOST: mongodb://mongo-merkle-tree
+      MONGO_PORT: 27017
+      MONGO_NAME: merkle_tree
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: admin
+    networks:
+      - my_network
+
+  # The database storing the merkle tree
+  mongo-merkle-tree:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+      - MONGO_INITDB_DATABASE=merkle_tree
+    volumes:
+      - ./config/merkle-tree/setup_admin_user.js:/docker-entrypoint-initdb.d/setup_admin_user.js
+      - mongo-merkle-tree-volume:/data/db
+    networks:
+      - my_network
+
+volumes:
+  mongo-merkle-tree-volume: {}
+  db: # simple level db for demo dApp
+
+networks:
+  my_network:
+    name: my_network

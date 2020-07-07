@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# For devs. Quickly compile all contracts.
+docker-compose run --rm truffle compile

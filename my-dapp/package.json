@@ -1,0 +1,62 @@
+{
+  "name": "my-dapp",
+  "version": "1.0.0",
+  "description": "demo dApp - making an erc721 app private",
+  "repository": "https://github.com/EYBlockchain/zkp-deep-dive",
+  "main": "index.js",
+  "scripts": {
+    "setup": "NODE_ENV=setup babel-node proving-files/index.js",
+    "setup-mimc": "NODE_ENV=setup HASH_TYPE=mimc babel-node proving-files/index.js",
+    "setup-all": "yes | NODE_ENV=setup babel-node proving-files/index.js",
+    "setup-all-mimc": "yes | NODE_ENV=setup HASH_TYPE=mimc babel-node proving-files/index.js",
+    "start": "babel-node -e 'require(\"./src/index.js\")'",
+    "test": "NODE_ENV=test jest --verbose --runInBand --forceExit ./__tests__/nft-controller.js",
+    "demo": "babel-node -e 'require(\"./demo/index.js\")'"
+  },
+  "contributors": [
+    "Chaitanya Konda <CKonda@uk.ey.com>",
+    "Duncan Westland <duncan.westland@uk.ey.com>",
+    "Mohammed Shameem <Mohammed.Shameem@uk.ey.com>",
+    "Michael Connor <Michael.Connor@uk.ey.com>",
+    "Liju Jose <Liju.Jose@gds.ey.com>",
+    "Asish A Prema",
+    "A.J. May <aj.may@ey.com>",
+    "Kartheek Solipuram <Kartheek.Solipuram@ey.com>"
+  ],
+  "license": "CC0-1.0",
+  "dependencies": {
+    "@eyblockchain/nightlite": "5.3.0",
+    "@eyblockchain/zokrates.js": "^1.2.0",
+    "big-integer": "^1.6.48",
+    "body-parser": "^1.19.0",
+    "config": "^3.2.2",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "hex-to-binary": "^1.0.1",
+    "inquirer": "^6.2.2",
+    "jsonfile": "^5.0.0",
+    "keccak": "^2.1.0",
+    "request": "^2.88.0",
+    "safe-buffer": "^5.2.0",
+    "truffle-contract": "4.0.15",
+    "web3": "1.0.0-beta.36",
+    "yargs": "^12.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.4.4",
+    "jest": "^24.8.0",
+    "jest-expect-message": "^1.0.2",
+    "nodemon": "^1.19.0"
+  },
+  "jest": {
+    "globalSetup": "/app/__tests__/globalSetup.js",
+    "testPathIgnorePatterns": [
+      "/app/__tests__/globalSetup.js"
+    ],
+    "setupFilesAfterEnv": [
+      "jest-expect-message"
+    ]
+  }
+}

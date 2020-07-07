@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+launchContainers(){
+  printf "${GREEN}*** Docker Compose Build ***${NC}\n"
+  docker-compose build
+
+  printf "${GREEN}*** Launching containerized ganache ***${NC}\n"
+  docker-compose up -d ganache
+
+  printf "${GREEN}*** Deploying all contracts ***${NC}\n"
+  docker-compose run --rm truffle migrate --reset --network=default
+
+  printf "${GREEN}*** Launching independent containers ***${NC}\n"
+  # these container take time to setup
+  # starting them first to avoid ECONNREFUSED error
+  # as other containers depends on them
+  docker-compose up -d mongo-merkle-tree
+
+  sleep 10
+
+  printf "${GREEN}*** Launching containerized microservices ***${NC}\n"
+  docker-compose up
+}
+
+printf "${GREEN}*** Cleaning up all containers ***${NC}\n"
+docker-compose down -v || {
+	# this block will run if ```docker-compose down -v``` fails.
+	sleep 3
+
+	printf "${GREEN}*** Remove my_network ***${NC}\n"
+  docker network rm my_network
+
+	printf "${GREEN}*** Remove the merkle tree's mongo volume ***${NC}\n"
+  docker volume rm my-dapp_mongo-merkle-tree-volume
+}
+
+printf  "${GREEN}*** Delete files created by previous run ***${NC}\n"
+rm -dr build/ || true
+rm contracts/privacy/MerkleTree.sol || true
+rm docker-compose.override.yml || true
+
+printf "${GREEN}*** Pull zokrates docker image ***${NC}\n"
+docker pull zokrates/zokrates:0.5.1
+
+if [[ "$1" == "mimc" ]]
+then
+  cp docker-compose.override.$1.yml docker-compose.override.yml
+  launchContainers
+
+else
+  launchContainers
+fi

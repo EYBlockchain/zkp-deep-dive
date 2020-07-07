@@ -1,0 +1,6 @@
+node_modules
+*.DS_Store
+docker-compose.override.yml
+build/contracts/
+proving-files/gm17/
+contracts/privacy/MerkleTree.sol

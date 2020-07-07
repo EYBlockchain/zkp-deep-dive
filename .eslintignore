@@ -1,0 +1,7 @@
+node_modules
+mochawesome-report
+my-dapp/migrations
+account-utils
+zkp-utils/node_modules
+offchain/migrations
+ui

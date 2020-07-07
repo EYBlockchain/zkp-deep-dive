@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  my-dapp:
+    environment:
+      HASH_TYPE: 'mimc'
+    depends_on:
+      - merkle-tree
+
+  merkle-tree:
+    environment:
+      HASH_TYPE: 'mimc'
+
+  truffle:
+    environment:
+      HASH_TYPE: 'mimc'
+    volumes:
+      - ./contracts/privacy/mimc/MerkleTree.sol:/truffle/contracts/privacy/MerkleTree.sol:delegated
+      - ./contracts/privacy/mimc/MiMC.sol:/truffle/contracts/privacy/MiMC.sol:delegated

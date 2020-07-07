@@ -22,7 +22,8 @@ As well as this repo, please be sure to check out:
   - privacy contracts*
   - private messaging
   - private data management
-  (_*Asterisked features are included in this 'zkp-deep-dive' repo_)
+
+  (_*Only the asterisked features are included in this 'zkp-deep-dive' repo. For the other features, see Nightfall._)
 - [Nightlite](https://github.com/EYBlockchain/nightlite) - a library containing core privacy logic:
   - private transaction logic
   - zk-SNARK tools
